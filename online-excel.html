@@ -607,11 +607,17 @@
         btn.innerText = "Sheets'e Gönderiliyor...";
         btn.disabled = true;
 
+        // Yerel veriyi bozmadan, sadece Sheets'e gidecek ROI'yi 100'e bölüyoruz (örn: 7 -> 0.07)
+        const sheetsPayload = {
+          ...newTrade,
+          roi: roi / 100
+        };
+
         fetch(url, {
           method: 'POST',
           mode: 'no-cors',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newTrade)
+          body: JSON.stringify(sheetsPayload)
         }).then(() => {
           btn.innerText = "İşlemi Kaydet & Sheets'e Gönder";
           btn.disabled = false;
@@ -624,7 +630,7 @@
       document.getElementById('inpCoin').value = '';
       document.getElementById('inpRoi').value = '';
     }
-
+    
     function deleteTrade(id) {
       if (confirm(`#${id} numaralı işlem silinsin mi?`)) {
         trades = trades.filter(t => t.id !== id);
