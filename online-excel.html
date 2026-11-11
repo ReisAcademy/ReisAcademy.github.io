@@ -221,7 +221,7 @@
         
         <div class="setup-box">
           <label style="font-weight:700; color:var(--accent-blue);">🔗 Google Apps Script Web App URL</label>
-          <input type="text" id="scriptUrl" class="form-control" value="https://script.google.com/macros/s/AKfycbwuxRHUV-4dvwp6OfF2BOwRxYVGHM2b4_1a1GNmsQ-IIFbEbu5apArp_i442dU9rKQg3Q/exec" onchange="saveScriptUrl()">
+          <input type="text" id="scriptUrl" class="form-control" value="https://script.google.com/macros/s/AKfycbwkg8iqPv4vMSqFrxP_0RSZwNpgnYrS9Hf46TsfRp1jFk29xebrUzVOMjMUG8nnhQntnA/exec" onchange="saveScriptUrl()">
         </div>
 
         <div class="form-group">
@@ -515,7 +515,7 @@
         riskPct: riskPct,
         amount: amount,
         addition: addition,
-        roi: roi,
+        roi: roi / 100,
         pnl: pnl
       };
 
