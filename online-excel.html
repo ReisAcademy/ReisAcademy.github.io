@@ -622,7 +622,7 @@
 
     function renderExportCard(currentBalance, totalGrowth, tpCount, stopCount, winRate) {
       document.getElementById('expStart').innerText = '$' + initialBalance.toLocaleString();
-      document.getElementById('expCurrent').innerText = '$' + currentBalance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+      document.getElementById('expCurrent').innerText = '$' + currentBalance.toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
       
       const expGrowth = document.getElementById('expGrowth');
       expGrowth.innerText = '%' + totalGrowth.toFixed(2);
