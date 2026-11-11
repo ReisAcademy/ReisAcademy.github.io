@@ -661,10 +661,10 @@
             <td class="exp-coin">${t.coin}</td>
             <td><span class="exp-badge ${badgeClass}">${t.type}</span></td>
             <td>${formatRiskPct(t.riskPct)}</td>
-            <td>$${t.amount.toFixed(0)}</td>
+            <td>$${t.amount}</td>
             <td>${t.addition || 'Hayır'}</td>
             <td>${formatRoi(t.roi)}</td>
-            <td class="${pnlClass}">${pnlSign}$${Math.abs(t.pnl).toFixed(1)}</td>
+            <td class="${pnlClass}">${pnlSign}$${Math.abs(t.pnl).toFixed(2)}</td>
           `;
         } else {
           tr.innerHTML = `
