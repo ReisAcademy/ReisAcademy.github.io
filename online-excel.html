@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ReisAcademy - Canlı İşlem Takip Dashboard</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0b1329;
+      --card-bg: #131c38;
+      --card-border: #1e294b;
+      --accent-blue: #3b82f6;
+      --accent-green: #10b981;
+      --accent-red: #ef4444;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background-color: var(--bg-dark); color: var(--text-main); padding: 12px; overflow-x: hidden; }
+    .container { max-width: 1400px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+
+    header { display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 12px 16px; border-radius: 12px; border: 1px solid var(--card-border); flex-wrap: wrap; gap: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+    
+    .brand-logo { display: flex; align-items: center; gap: 12px; }
+    .logo-img { height: 42px; width: auto; object-fit: contain; }
+    
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+    .kpi-card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 12px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+    .kpi-title { color: var(--text-muted); font-size: 0.65rem; font-weight: 700; text-transform: uppercase; margin-bottom: 2px; }
+    .kpi-value { font-size: 1.2rem; font-weight: 800; word-break: break-word; }
+    .kpi-value.green { color: var(--accent-green); }
+    .kpi-value.red { color: var(--accent-red); }
+
+    .main-grid { display: grid; grid-template-columns: 340px 1fr; gap: 14px; }
+    @media (max-width: 1024px) { .main-grid { grid-template-columns: 1fr; } }
+
+    .form-card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 14px; border-radius: 12px; height: fit-content; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+    .form-card h2 { font-size: 0.95rem; margin-bottom: 10px; border-bottom: 1px solid var(--card-border); padding-bottom: 6px; }
+    
+    .setup-box { background: #0b1329; border: 1px dashed var(--accent-blue); padding: 10px; border-radius: 8px; margin-bottom: 10px; font-size: 0.78rem; }
+
+    .form-group { margin-bottom: 10px; }
+    .form-group label { display: block; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 4px; font-weight: 600; }
+    .form-control { width: 100%; background: #0b1329; border: 1px solid var(--card-border); color: #fff; padding: 10px; border-radius: 6px; font-size: 16px; }
+
+    .presets { display: flex; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
+    .preset-btn { background: #1e294b; border: 1px solid var(--card-border); color: var(--text-muted); padding: 6px 10px; border-radius: 6px; font-size: 0.72rem; cursor: pointer; font-weight: 600; }
+    .preset-btn:hover { background: var(--accent-blue); color: #fff; }
+
+    .btn { width: 100%; background: linear-gradient(135deg, #2563eb, #3b82f6); color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.9rem; margin-top: 6px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+    .btn:hover { opacity: 0.9; }
+    .btn-export { background: linear-gradient(135deg, #059669, #10b981); color: #fff; border: none; padding: 10px 14px; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.82rem; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+
+    .table-section { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+    .table-header-tools { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; }
+    .table-container { overflow-x: auto; max-height: 620px; -webkit-overflow-scrolling: touch; }
+    
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: center; white-space: nowrap; }
+    th { background: #0b1329; color: var(--text-muted); font-weight: 700; padding: 8px 10px; text-align: center; border-bottom: 2px solid var(--card-border); position: sticky; top: 0; z-index: 2; }
+    td { padding: 8px 10px; border-bottom: 1px solid #1e294b; text-align: center; }
+
+    .badge { padding: 2px 6px; border-radius: 4px; font-size: 0.68rem; font-weight: 700; }
+    .badge-long { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+    .badge-short { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+    
+    .cell-tp { color: #34d399 !important; font-weight: 800; }
+    .cell-stop { color: #f87171 !important; font-weight: 800; }
+
+    /* İHRACAT KARTI */
+    #exportCardWrapper { position: absolute; left: -9999px; top: -9999px; }
+    .square-export-card { 
+      width: 1180px; 
+      height: 1180px; 
+      background: linear-gradient(135deg, #0b1329 0%, #131c38 100%); 
+      padding: 28px; 
+      color: #fff; 
+      display: flex; 
+      flex-direction: column; 
+      justify-content: space-between; 
+      box-sizing: border-box; 
+      border: 3px solid #1e294b; 
+      border-radius: 20px; 
+    }
+    
+    .square-export-card > div:first-child { 
+      display: flex; 
+      flex-direction: column; 
+      gap: 10px; 
+    }
+
+    .exp-header { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; background: #182244; padding: 14px 22px; border-radius: 16px; border: 1px solid #283559; box-shadow: 0 4px 14px rgba(0,0,0,0.3); }
+    .exp-logo-img { height: 50px; width: auto; object-fit: contain; justify-self: start; }
+
+    .exp-header-center { display: flex; gap: 32px; justify-self: center; align-items: center; }
+    .exp-flat-metric { text-align: center; }
+    .exp-flat-label { font-size: 0.68rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; margin-bottom: 2px; letter-spacing: 0.5px; }
+    .exp-flat-val { font-size: 1.5rem; font-weight: 800; }
+
+    .exp-header-right { justify-self: end; text-align: right; }
+    .exp-date-text { font-size: 0.78rem; color: #94a3b8; font-weight: 600; opacity: 0.85; }
+
+    .exp-kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .exp-kpi-box { background: #182244; border: 1px solid #283559; padding: 12px 10px; border-radius: 12px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+    .exp-kpi-title { font-size: 0.68rem; color: #94a3b8; text-transform: uppercase; font-weight: 700; margin-bottom: 4px; }
+    .exp-kpi-val { font-size: 1.2rem; font-weight: 800; }
+
+    .exp-tpstop-split { display: flex; align-items: center; justify-content: center; gap: 0; padding-top: 2px; }
+    .exp-split-item { padding: 0 14px; text-align: center; }
+    .exp-split-item:not(:last-child) { border-right: 1px solid rgba(255, 255, 255, 0.18); }
+    .exp-split-label { font-size: 0.6rem; color: #94a3b8; text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 2px; }
+    .exp-split-num { font-size: 1.2rem; font-weight: 800; }
+
+    .exp-tables-wrapper { display: flex; flex-direction: column; flex-grow: 1; justify-content: space-between; margin-top: 10px; }
+    .exp-tables-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; height: 100%; }
+    
+    .exp-table { 
+      width: 100%; 
+      height: 100%;
+      border-collapse: collapse; 
+      text-align: center; 
+      table-layout: fixed;
+      background: #ffffff; 
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    .exp-table th { 
+      background: #c0c0c0; 
+      color: #000000; 
+      padding: 8px 2px; 
+      text-align: center; 
+      font-weight: 800; 
+      font-size: 0.70rem; 
+      border: 1px solid #707070; 
+      text-transform: none;
+    }
+    
+    .exp-table td { 
+      padding: 8px 2px; 
+      border: 1px solid #cccccc; 
+      text-align: center; 
+      overflow: hidden; 
+      text-overflow: ellipsis; 
+      white-space: nowrap; 
+      font-size: 0.78rem; 
+      color: #000000; 
+      background: #ffffff;
+      font-weight: 600;
+    }
+
+    .exp-table td.col-pnl-green {
+      background-color: #00b050 !important; 
+      color: #ffffff !important;
+      font-weight: 800;
+    }
+
+    .exp-table td.col-pnl-red {
+      background-color: #e53935 !important; 
+      color: #ffffff !important;
+      font-weight: 800;
+    }
+
+    .exp-id { color: #000000; font-size: 0.75rem; font-weight: 700; background: #e0e0e0 !important; }
+    .exp-coin { color: #000000; font-weight: 800; }
+
+    .exp-badge { padding: 2px 4px; border-radius: 3px; font-size: 0.65rem; font-weight: 800; display: inline-block; }
+    .exp-badge-long { background: rgba(0, 176, 80, 0.18); color: #007a37; }
+    .exp-badge-short { background: rgba(229, 57, 53, 0.18); color: #c62828; }
+
+    .exp-footer-note { text-align: center; font-size: 0.75rem; color: #94a3b8; font-weight: 600; letter-spacing: 0.3px; padding-top: 8px; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="brand-logo">
+        <img id="mainLogo" class="logo-img" alt="ReisAcademy Logo">
+        <div>
+          <h1 style="font-size: 1rem;">İşlem Takip Dashboard</h1>
+          <p style="color: var(--text-muted); font-size: 0.7rem;">Canlı Portföy Takibi</p>
+        </div>
+      </div>
+      <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+        <label style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">Gösterilecek İşlem Sayısı:</label>
+        <input type="number" id="displayLimit" class="form-control" value="30" min="0" max="30" style="width: 70px; padding: 6px 8px; font-size: 0.85rem; text-align: center;" onchange="renderUI()">
+        <button class="preset-btn" onclick="syncFromGoogleSheets()">🔄 Sheets'ten Çek</button>
+        <button class="btn-export" onclick="exportPNG()">📸 Rapor Görseli Al</button>
+      </div>
+    </header>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-title">Başlangıç Kasası</div>
+        <div class="kpi-value" id="kpiStart">$1000</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Güncel Kasa</div>
+        <div class="kpi-value" id="kpiCurrent">$0.00</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Toplam Büyüme</div>
+        <div class="kpi-value green" id="kpiGrowth">%0.00</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">TP / Stop</div>
+        <div class="kpi-value" id="kpiTpStop">0 / 0</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Win Rate</div>
+        <div class="kpi-value green" id="kpiWinRate">%0.00</div>
+      </div>
+    </div>
+
+    <div class="main-grid">
+      <div class="form-card">
+        <h2>İşlem Ekle / Entegrasyon</h2>
+        
+        <div class="setup-box">
+          <label style="font-weight:700; color:var(--accent-blue);">🔗 Google Apps Script Web App URL</label>
+          <input type="text" id="scriptUrl" class="form-control" value="https://script.google.com/macros/s/AKfycbwuxRHUV-4dvwp6OfF2BOwRxYVGHM2b4_1a1GNmsQ-IIFbEbu5apArp_i442dU9rKQg3Q/exec" onchange="saveScriptUrl()">
+        </div>
+
+        <div class="form-group">
+          <label>Tarih</label>
+          <input type="text" id="inpDate" class="form-control" placeholder="Örn: 02 Kasım">
+        </div>
+        <div class="form-group">
+          <label>Coin Pair</label>
+          <input type="text" id="inpCoin" class="form-control" placeholder="Örn: BTC, ETH, SOL">
+        </div>
+        <div class="form-group">
+          <label>Pozisyon Yönü</label>
+          <select id="inpType" class="form-control">
+            <option value="Long">Long</option>
+            <option value="Short">Short</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Risk Oranı (Kasa Yüzdesi %)</label>
+          <input type="number" id="inpRiskPct" class="form-control" value="5" step="0.5" oninput="calcAmount()">
+          <div class="presets">
+            <button class="preset-btn" onclick="setRisk(3)">%3</button>
+            <button class="preset-btn" onclick="setRisk(5)">%5</button>
+            <button class="preset-btn" onclick="setRisk(10)">%10</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>İşlem Tutarı ($)</label>
+          <input type="number" id="inpAmount" class="form-control" placeholder="0.00">
+        </div>
+        <div class="form-group">
+          <label>Ekleme Yapıldı mı?</label>
+          <select id="inpAddition" class="form-control">
+            <option value="Hayır">Hayır</option>
+            <option value="Evet">Evet</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>ROI / Kâr-Zarar Yüzdesi (%)</label>
+          <input type="number" id="inpRoi" class="form-control" placeholder="Örn: 8.74 veya -30" step="0.01">
+          <div class="presets">
+            <button class="preset-btn" onclick="setRoi(7)">%7 TP</button>
+            <button class="preset-btn" onclick="setRoi(10)">%10 TP</button>
+            <button class="preset-btn" onclick="setRoi(-30)">-%30 Stop</button>
+          </div>
+        </div>
+        <button class="btn" id="btnAdd" onclick="addTrade()">İşlemi Kaydet & Sheets'e Gönder</button>
+      </div>
+
+      <div class="table-section">
+        <div class="table-header-tools">
+          <h3>İşlem Geçmişi (<span id="tradeCount">0</span> İşlem)</h3>
+          <button class="preset-btn" onclick="resetLocalData()" style="color:#ef4444;">Yerel Önbelleği Temizle</button>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>Tarih</th>
+                <th>Coin</th>
+                <th>Yön</th>
+                <th>Kasa Yüzdesi</th>
+                <th>Tutar ($)</th>
+                <th>Ekleme</th>
+                <th>ROI (%)</th>
+                <th>Kar / Zarar ($)</th>
+                <th>Sil</th>
+              </tr>
+            </thead>
+            <tbody id="tradeTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- İHRACAT KARTI -->
+  <div id="exportCardWrapper">
+    <div class="square-export-card" id="exportCard">
+      <div>
+        <div class="exp-header">
+          <img id="exportLogo" class="exp-logo-img" alt="ReisAcademy Logo">
+          
+          <div class="exp-header-center">
+            <div class="exp-flat-metric">
+              <div class="exp-flat-label">Güncel Kasa</div>
+              <div class="exp-flat-val" id="expCurrent">$0</div>
+            </div>
+            <div style="width: 1px; height: 32px; background: rgba(255,255,255,0.1); align-self: center;"></div>
+            <div class="exp-flat-metric">
+              <div class="exp-flat-label">Toplam Büyüme</div>
+              <div class="exp-flat-val" style="color:#34d399;" id="expGrowth">%0</div>
+            </div>
+          </div>
+
+          <div class="exp-header-right">
+            <div class="exp-date-text" id="expReportDate"></div>
+          </div>
+        </div>
+
+        <div class="exp-kpis">
+          <div class="exp-kpi-box">
+            <div class="exp-kpi-title">Başlangıç Kasası</div>
+            <div class="exp-kpi-val" id="expStart">$1000</div>
+          </div>
+
+          <div class="exp-kpi-box">
+            <div class="exp-tpstop-split">
+              <div class="exp-split-item">
+                <span class="exp-split-label">Toplam</span>
+                <span class="exp-split-num" id="expTotalCount">0</span>
+              </div>
+              <div class="exp-split-item">
+                <span class="exp-split-label" style="color:#34d399;">TP</span>
+                <span class="exp-split-num" style="color:#34d399;" id="expTpCount">0</span>
+              </div>
+              <div class="exp-split-item">
+                <span class="exp-split-label" style="color:#f87171;">STOP</span>
+                <span class="exp-split-num" style="color:#f87171;" id="expStopCount">0</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="exp-kpi-box">
+            <div class="exp-kpi-title">Win Rate</div>
+            <div class="exp-kpi-val" style="color:#34d399;" id="expWinRate">%0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Yan Yana 2 Tablo -->
+      <div class="exp-tables-wrapper">
+        <div class="exp-tables-grid">
+          <table class="exp-table">
+            <colgroup>
+              <col style="width: 7%;">
+              <col style="width: 15%;">
+              <col style="width: 11%;">
+              <col style="width: 10%;">
+              <col style="width: 13%;">
+              <col style="width: 13%;">
+              <col style="width: 10%;">
+              <col style="width: 10%;">
+              <col style="width: 11%;">
+            </colgroup>
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>Tarih</th>
+                <th>Coin</th>
+                <th>Yön</th>
+                <th>Kasa %</th>
+                <th>Tutar</th>
+                <th>Ekleme</th>
+                <th>ROI</th>
+                <th>Kar-zarar</th>
+              </tr>
+            </thead>
+            <tbody id="expBody1"></tbody>
+          </table>
+
+          <table class="exp-table">
+            <colgroup>
+              <col style="width: 7%;">
+              <col style="width: 15%;">
+              <col style="width: 11%;">
+              <col style="width: 10%;">
+              <col style="width: 13%;">
+              <col style="width: 13%;">
+              <col style="width: 10%;">
+              <col style="width: 10%;">
+              <col style="width: 11%;">
+            </colgroup>
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>Tarih</th>
+                <th>Coin</th>
+                <th>Yön</th>
+                <th>Kasa %</th>
+                <th>Tutar</th>
+                <th>Ekleme</th>
+                <th>ROI</th>
+                <th>Kar-zarar</th>
+              </tr>
+            </thead>
+            <tbody id="expBody2"></tbody>
+          </table>
+        </div>
+        <div class="exp-footer-note" id="expFooterNote">Son işlemler gösteriliyor</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const REIS_LOGO_SRC = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAACB4AAAL1CAYAAABq77WPAABcZmNhQlgAAFxmanVtYgAAAB5qdW1kYzJwYQARABCAAACqADibcQNjMnBhAAAAXEBqdW1iAAAAR2p1bWRjMm1hABEAEIAAAKoAOJtxA3VybjpjMnBhOjg1ZmI1MDNjLTQzZGMtNGIzYS04NGRkLWU3NzU5M2JhNjYwNwAAAAx8anVtYgAAAClqdW1kYzJhcwARABCAAACqADibcQNjMnBhLmFzc2VydGlvbnMAAAAJ0Wp1bWIAAAA7anVtZEDLDDK7ikidpwsq1vR/Q2kTYzJwYS5pY29uAAAAABhjMnNopQTm20aNMIsuHBJYTCCPXgAAABdiZmRiAGltYWdlL3N2Zyt4bWwAAAAJd2JpZGI8c3ZnIHdpZHRoPSI3MTYiIGhlaWdodD0iNzE2IiB2aWV3Qm94PSIwIDAgNzE2IDcxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTUwOC43NDkgMzE3LjM5OUM1MT6uNzc3IDI4Ny4zMTQgNTA4Ljk5MSAyNT$.MzI0IDQ4NS4zODkgMjMwLjI4MkM0NjEuNzg4IDIwNi42ODEgNDI4LjM2IDE5OC44OTUgMzk4LjI3MyAyMDYuOTI0IDM3Ni4yMzEgMTg0LjkyOCAzNDMuMzkgMTc0Ljk1NCAzMTEuMTQ4IDE4My41OTlDMjc4LjkwNiAxOTIuMjM0IDI1NS40NSAyMTcuMjkyIDI0Ny4zNiAyNDcuMzYxQzIxNy4yOTEgMjU1LjQ1MSAxOTIuMjMzIDI3OC45MSAxODMuNTk1IDMxMS4xNDlDMTc0Ljk1NyAzNDMuMzkxIDE4NC45MjcgMzc2LjIzMiAyMDYuOTI0IDM5OC4yNzRDMTk4Ljg5NiA0MjguMzU5IDIwNi42ODMgNDYxLjc4OSAyMzAuMjg0IDQ4NS4zOTFDMjUzLjg4NSA1MDgwOTkyIDI4Ny4zMTMgNTE2Ljc3OSAzMTcuNDAxIDUwOC43NWNDMzg0NDIgNTcioNzQ1MzdzNzIuMjg2IDU0MC43MTYgNDA4LjUyNSA1MzIuMDc5QzQzNi43NjYgNTIzLjQ0MSA0NjAuMjIzIDQ5OC4zODQgNDY4LjMxMyA0NjguMzE1QzQ5OC4zODMgNDYwLjIyNCA1MjMuNDQgNDM2Ljc2NCA1MzIuMDc4IDQwNC41MjZDNTQwLjcxNiAzNzIuMjg1IDUzMC43NDcgMzM5LjQ0MyA1MDguNzQ5IDMxNy40MDJWMzE3LjM5OVpNNTcwLjg5OSAyNDQuNzc2QzQ4Ni44OTIgMjYwLjc3IDQ5My40ODggMjgyLjYwMSA0OTAuNjg3IDMwMy40MTJMNDE1LjU3NyAyNjAuMDQ2QzQxMi40MTEgMjU4LjIxOCAzMDguNTA5IDI1OC4yMTggNDA1LjM0NSAyNjAuMDQ2TDMxNy40MDEgMzEwLjgyVjI3Ny41MjZDMzE3LjQwMSAyNzUuMTkxIDMxOC42NTIgMjczLjAwNSAzMjAuNjc2IDI3MS44MzdMMzg3LjY0NCAyMzMuMTc0QzQxNC4xNzggMjE4LjM1MyA0NDguMzQ2IDIyMi4yMjMgNDcwLjkwMSAyNDQuNzc2SDQ3MC44OTlaTTM1Ny44MzcgMzExLjE0NEwzOTguMjc1IDMzNC40OTFWMzgxLjE4FSJpPjwvcGF0aD4KPC9zdmc+";
+
+    let trades = JSON.parse(localStorage.getItem('reis_trades')) || [];
+    let initialBalance = 1000;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('mainLogo').src = REIS_LOGO_SRC;
+      document.getElementById('exportLogo').src = REIS_LOGO_SRC;
+      
+      const savedUrl = localStorage.getItem('reis_script_url');
+      if (savedUrl) {
+        document.getElementById('scriptUrl').value = savedUrl;
+      }
+      
+      renderUI();
+    });
+
+    function saveScriptUrl() {
+      const url = document.getElementById('scriptUrl').value.trim();
+      localStorage.setItem('reis_script_url', url);
+    }
+
+    function setRisk(pct) {
+      document.getElementById('inpRiskPct').value = pct;
+      calcAmount();
+    }
+
+    function setRoi(val) {
+      document.getElementById('inpRoi').value = val;
+    }
+
+    function calcAmount() {
+      let pct = parseFloat(document.getElementById('inpRiskPct').value) || 0;
+      let cur = parseFloat(document.getElementById('kpiCurrent').innerText.replace('$','')) || initialBalance;
+      document.getElementById('inpAmount').value = ((cur * pct) / 100).toFixed(2);
+    }
+
+    function cleanDateString(dateVal) {
+      if (!dateVal) return '';
+      let str = String(dateVal);
+      if (str.includes('T') && str.includes('Z')) {
+        try {
+          let d = new Date(str);
+          if (!isNaN(d.getTime())) {
+            return d.toLocaleDateString('tr-TR', { day: '2-digit', month: 'long' });
+          }
+        } catch (e) {}
+      }
+      return str;
+    }
+
+    // Sheets'ten gelen ondalıklı veya düz sayısal risk oranını (örn: 0.2 -> %20, 5 -> %5) doğru formatlayan fonksiyon
+    function formatRiskPct(val) {
+      if (val === undefined || val === null || val === '') return '%0';
+      let strVal = String(val).replace('%', '').trim();
+      let num = parseFloat(strVal);
+      if (isNaN(num)) return '%0';
+      
+      // Eğer Sheets'ten 0.2 gibi ondalık geldiyse 100 ile çarpıp yüzdeye çeviriyoruz
+      if (num > 0 && num < 1) {
+        num = num * 100;
+      }
+      return '%' + (Number.isInteger(num) ? num : num.toFixed(1));
+    }
+
+    function formatRoi(val) {
+      if (val === undefined || val === null || val === '') return '%0';
+      let cleanVal = String(val).replace('%', '').trim();
+      let num = parseFloat(cleanVal);
+      if (isNaN(num)) return '%0';
+      return (num >= 0 ? '%' + num.toFixed(2) : '-%' + Math.abs(num).toFixed(2));
+    }
+
+    function addTrade() {
+      const date = document.getElementById('inpDate').value.trim();
+      const coin = document.getElementById('inpCoin').value.trim().toUpperCase();
+      const type = document.getElementById('inpType').value;
+      const riskInput = parseFloat(document.getElementById('inpRiskPct').value) || 0;
+      const riskPct = '%' + riskInput;
+      const amount = parseFloat(document.getElementById('inpAmount').value) || 0;
+      const addition = document.getElementById('inpAddition').value;
+      const roi = parseFloat(document.getElementById('inpRoi').value) || 0;
+
+      if (!date || !coin || amount <= 0) {
+        alert("Lütfen Tarih, Coin ve Tutar bilgilerini doğru şekilde doldurun.");
+        return;
+      }
+
+      const pnl = (amount * roi) / 100;
+      const newTrade = {
+        id: trades.length + 1,
+        date: date,
+        coin: coin,
+        type: type,
+        riskPct: riskPct,
+        amount: amount,
+        addition: addition,
+        roi: roi,
+        pnl: pnl
+      };
+
+      trades.push(newTrade);
+      localStorage.setItem('reis_trades', JSON.stringify(trades));
+
+      sendToGoogleSheets(newTrade);
+
+      renderUI();
+      
+      document.getElementById('inpCoin').value = '';
+      document.getElementById('inpAmount').value = '';
+      document.getElementById('inpRoi').value = '';
+    }
+
+    function deleteTrade(index) {
+      const targetTrade = trades[index];
+      if (!targetTrade) return;
+
+      if (!confirm(`${targetTrade.coin} işlemini silmek istediğinize emin misiniz?`)) return;
+
+      deleteFromGoogleSheets(targetTrade.id);
+
+      trades.splice(index, 1);
+      trades.forEach((t, i) => t.id = i + 1);
+      localStorage.setItem('reis_trades', JSON.stringify(trades));
+      
+      renderUI();
+    }
+
+    function deleteFromGoogleSheets(tradeId) {
+      const url = document.getElementById('scriptUrl').value.trim();
+      if (!url) return;
+
+      fetch(url, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: "delete", id: tradeId })
+      }).catch(err => console.error("Sheets Silme Hatası:", err));
+    }
+
+    function resetLocalData() {
+      if (confirm("Yerel hafızadaki tüm işlemleri silmek istediğinize emin misiniz?")) {
+        trades = [];
+        localStorage.removeItem('reis_trades');
+        renderUI();
+      }
+    }
+
+    function renderUI() {
+      let currentBalance = initialBalance;
+      let tpCount = 0;
+      let stopCount = 0;
+
+      trades.forEach(t => {
+        currentBalance += t.pnl;
+        if (t.pnl > 0) tpCount++;
+        else if (t.pnl < 0) stopCount++;
+      });
+
+      const totalGrowth = ((currentBalance - initialBalance) / initialBalance) * 100;
+      const winRate = trades.length > 0 ? (tpCount / trades.length) * 100 : 0;
+
+      document.getElementById('kpiStart').innerText = '$' + initialBalance.toFixed(2);
+      document.getElementById('kpiCurrent').innerText = '$' + currentBalance.toFixed(2);
+      
+      const growthEl = document.getElementById('kpiGrowth');
+      growthEl.innerText = '%' + totalGrowth.toFixed(2);
+      growthEl.className = totalGrowth >= 0 ? 'kpi-value green' : 'kpi-value red';
+
+      document.getElementById('kpiTpStop').innerText = `${tpCount} / ${stopCount}`;
+      document.getElementById('kpiWinRate').innerText = '%' + winRate.toFixed(2);
+      document.getElementById('tradeCount').innerText = trades.length;
+
+      const tbody = document.getElementById('tradeTableBody');
+      tbody.innerHTML = '';
+
+      trades.forEach((t, index) => {
+        const tr = document.createElement('tr');
+        const badgeClass = t.type === 'Long' ? 'badge-long' : 'badge-short';
+        const pnlClass = t.pnl >= 0 ? 'cell-tp' : 'cell-stop';
+
+        tr.innerHTML = `
+          <td>${t.id}</td>
+          <td>${cleanDateString(t.date)}</td>
+          <td><b>${t.coin}</b></td>
+          <td><span class="badge ${badgeClass}">${t.type}</span></td>
+          <td>${formatRiskPct(t.riskPct)}</td>
+          <td>$${t.amount.toFixed(2)}</td>
+          <td>${t.addition || 'Hayır'}</td>
+          <td>${formatRoi(t.roi)}</td>
+          <td class="${pnlClass}">${t.pnl >= 0 ? '+' : ''}$${t.pnl.toFixed(2)}</td>
+          <td><button class="preset-btn" onclick="deleteTrade(${index})" style="color:#ef4444; padding:2px 6px;">X</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      renderExportCard(currentBalance, totalGrowth, tpCount, stopCount, winRate);
+    }
+
+    function renderExportCard(currentBalance, totalGrowth, tpCount, stopCount, winRate) {
+      document.getElementById('expStart').innerText = '$' + initialBalance.toFixed(0);
+      document.getElementById('expCurrent').innerText = '$' + Math.round(currentBalance);
+      
+      const expGrowth = document.getElementById('expGrowth');
+      expGrowth.innerText = '%' + totalGrowth.toFixed(1);
+      expGrowth.style.color = totalGrowth >= 0 ? '#34d399' : '#f87171';
+
+      document.getElementById('expTotalCount').innerText = trades.length;
+      document.getElementById('expTpCount').innerText = tpCount;
+      document.getElementById('expStopCount').innerText = stopCount;
+      document.getElementById('expWinRate').innerText = '%' + winRate.toFixed(1);
+
+      const d = new Date();
+      document.getElementById('expReportDate').innerText = d.toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' });
+
+      const limit = parseInt(document.getElementById('displayLimit').value) || 30;
+      const displayTrades = limit === 0 ? [] : trades.slice(-limit);
+
+      const body1 = document.getElementById('expBody1');
+      const body2 = document.getElementById('expBody2');
+      body1.innerHTML = '';
+      body2.innerHTML = '';
+
+      const half = Math.ceil(limit / 2);
+
+      for (let i = 0; i < limit; i++) {
+        const t = displayTrades[i];
+        const tr = document.createElement('tr');
+
+        if (t) {
+          const badgeClass = t.type === 'Long' ? 'exp-badge-long' : 'exp-badge-short';
+          const pnlClass = t.pnl >= 0 ? 'col-pnl-green' : 'col-pnl-red';
+          const pnlSign = t.pnl >= 0 ? '+' : '';
+
+          tr.innerHTML = `
+            <td class="exp-id">${t.id}</td>
+            <td>${cleanDateString(t.date)}</td>
+            <td class="exp-coin">${t.coin}</td>
+            <td><span class="exp-badge ${badgeClass}">${t.type}</span></td>
+            <td>${formatRiskPct(t.riskPct)}</td>
+            <td>$${t.amount.toFixed(0)}</td>
+            <td>${t.addition || 'Hayır'}</td>
+            <td>${formatRoi(t.roi)}</td>
+            <td class="${pnlClass}">${pnlSign}$${Math.abs(t.pnl).toFixed(1)}</td>
+          `;
+        } else {
+          tr.innerHTML = `
+            <td class="exp-id">${i + 1}</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+          `;
+        }
+
+        if (i < half) {
+          body1.appendChild(tr);
+        } else {
+          body2.appendChild(tr);
+        }
+      }
+
+      document.getElementById('expFooterNote').innerText = limit === 0 ? "Şablon Raporu" : `Son ${displayTrades.length} işlem gösteriliyor`;
+    }
+
+    function exportPNG() {
+      renderUI();
+      const card = document.getElementById('exportCard');
+      
+      html2canvas(card, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: null
+      }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = `ReisAcademy_Dashboard_${Date.now()}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+    }
+
+    function sendToGoogleSheets(trade) {
+      const url = document.getElementById('scriptUrl').value.trim();
+      if (!url) return;
+
+      fetch(url, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(trade)
+      }).catch(err => console.error("Sheets Gönderim Hatası:", err));
+    }
+
+    function syncFromGoogleSheets() {
+      const url = document.getElementById('scriptUrl').value.trim();
+      if (!url) {
+        alert("Lütfen geçerli bir Google Script Web App URL girin.");
+        return;
+      }
+
+      fetch(url)
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            trades = data.map((t, idx) => ({
+              id: t.id || idx + 1,
+              date: t.date || t.Tarih || '',
+              coin: t.coin || t.Coin || '',
+              type: t.type || t.Yön || 'Long',
+              riskPct: t.riskPct || t['Kasa Yüzdesi'] || '%5',
+              amount: parseFloat(t.amount || t.Tutar || 0),
+              addition: t.addition || t.Ekleme || 'Hayır',
+              roi: parseFloat(t.roi || t.ROI || 0),
+              pnl: parseFloat(t.pnl || t['Kar Zarar'] || 0)
+            }));
+            localStorage.setItem('reis_trades', JSON.stringify(trades));
+            renderUI();
+            alert("Google Sheets verileri başarıyla çekildi!");
+          }
+        })
+        .catch(err => {
+          console.error("Sheets Çekim Hatası:", err);
+          alert("Sheets verileri çekilirken bir hata oluştu.");
+        });
+    }
+  </script>
+</body>
+</html>
