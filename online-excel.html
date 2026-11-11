@@ -584,7 +584,7 @@
       const winRate = trades.length > 0 ? (tpCount / trades.length) * 100 : 0;
 
       document.getElementById('kpiStart').innerText = '$' + initialBalance.toFixed(2);
-      document.getElementById('kpiCurrent').innerText = `$${currentCapital.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+      document.getElementById('kpiCurrent').innerText = '$' + currentBalance.toFixed(2);
       
       const growthEl = document.getElementById('kpiGrowth');
       growthEl.innerText = '%' + totalGrowth.toFixed(2);
