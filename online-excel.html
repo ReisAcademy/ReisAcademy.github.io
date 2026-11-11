@@ -625,13 +625,13 @@
       document.getElementById('expCurrent').innerText = '$' + Math.round(currentBalance);
       
       const expGrowth = document.getElementById('expGrowth');
-      expGrowth.innerText = '%' + totalGrowth.toFixed(1);
+      expGrowth.innerText = '%' + totalGrowth.toFixed(2);
       expGrowth.style.color = totalGrowth >= 0 ? '#34d399' : '#f87171';
 
       document.getElementById('expTotalCount').innerText = trades.length;
       document.getElementById('expTpCount').innerText = tpCount;
       document.getElementById('expStopCount').innerText = stopCount;
-      document.getElementById('expWinRate').innerText = '%' + winRate.toFixed(1);
+      document.getElementById('expWinRate').innerText = '%' + winRate.toFixed(2);
 
       const d = new Date();
       document.getElementById('expReportDate').innerText = d.toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' });
