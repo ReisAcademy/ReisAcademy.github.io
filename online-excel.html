@@ -489,7 +489,7 @@
       let num = parseFloat(cleanVal);
       if (isNaN(num)) return '%0'; // Eğer Sheets'ten 0.2 gibi ondalık geldiyse 100 ile çarpıp yüzdeye çeviriyoruz
       if (num > 0 && num < 1) {
-        num = num * 100;
+        num = num * 1000;
       }
       return '%' + (Number.isInteger(num) ? num : num.toFixed(1));
     }
